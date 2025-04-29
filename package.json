@@ -1,0 +1,8 @@
+{
+    "scripts": {
+      "processes:run": "npm run processes:remove && pm2 start processes.yaml",
+      "processes:remove": "pm2 delete processes.yaml",
+
+      "reset:app": "./reset.sh"
+    }
+}

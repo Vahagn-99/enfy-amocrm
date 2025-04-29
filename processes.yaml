@@ -1,0 +1,21 @@
+apps:
+  - name: "horizon:start"
+    script: artisan
+    watch: false
+    interpreter: php
+    args: "horizon"
+    restart_delay: 3000
+    error_file: ./storage/logs/queue.error.log
+    out_file: ./storage/logs/queue.out.log
+    pid_file: ./storage/app/queue.pid
+
+  - name: "scheduler:start"
+    script: artisan
+    watch: false
+    interpreter: php
+    args: "schedule:run"
+    cron_restart: "* * * * *"
+    autorestart: false
+    error_file: ./storage/logs/scheduler.error.log
+    out_file: ./storage/logs/scheduler.out.log
+    pid_file: ./storage/app/scheduler.pid
