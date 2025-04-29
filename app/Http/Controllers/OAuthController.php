@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Client as ClientModel;
-use App\Base\Client\Events\WidgetInstalled;
 use App\Http\Requests\CallbackRequest;
+use App\Base\Client\Events\AmoAccountAuthenticated;
 use App\Services\AmoCRM\Core\Facades\Amo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -57,7 +57,7 @@ class OAuthController extends Controller
 
             $client->save();
 
-            WidgetInstalled::dispatch($client);
+            AmoAccountAuthenticated::dispatch($client);
 
             return response()->json(['status' => 'success']);
         } catch (Exception $e) {

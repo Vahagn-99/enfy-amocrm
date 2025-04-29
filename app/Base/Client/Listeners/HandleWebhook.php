@@ -3,20 +3,19 @@
 namespace App\Base\Client\Listeners;
 
 
+use AmoCRM\Exceptions\AmoCRMApiException;
+use AmoCRM\Models\NoteModel;
+use AmoCRM\Models\NoteType\CommonNote;
 use App\Base\Client\CustomFieldDto;
 use App\Base\Client\Events\{
     ContactCreated,
     ContactUpdated,
     LeadCreated,
-    LeadUpdated,
-};
+    LeadUpdated,};
 use App\Services\AmoCRM\Core\Facades\Amo;
 use Carbon\Carbon;
-use AmoCRM\Models\NoteModel;
-use AmoCRM\Models\NoteType\CommonNote;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use AmoCRM\Exceptions\AmoCRMApiException;
 use Spatie\LaravelData\DataCollection;
 
 class HandleWebhook implements ShouldQueue
@@ -37,7 +36,8 @@ class HandleWebhook implements ShouldQueue
 
         $webhook = $event->webhook;
 
-        $text = sprintf($this->getTemplate($webhook->entity, $webhook->action),
+        $text = sprintf(
+            $this->getTemplate($webhook->entity, $webhook->action),
             $webhook->entity_name,
             $webhook->responsible_user_id,
             Carbon::createFromTimestamp($webhook->created_at)->toDateTimeString()
@@ -71,7 +71,8 @@ class HandleWebhook implements ShouldQueue
 
         $changed_custom_fields_imploded = $this->chainCustomFields($webhook->entity_custom_fields);
 
-        $text = sprintf($this->getTemplate($webhook->entity, $webhook->action),
+        $text = sprintf(
+            $this->getTemplate($webhook->entity, $webhook->action),
             $webhook->entity_name,
             $changed_custom_fields_imploded,
             Carbon::createFromTimestamp($webhook->updated_at)->toDateTimeString()
@@ -103,7 +104,8 @@ class HandleWebhook implements ShouldQueue
 
         $webhook = $event->webhook;
 
-        $text = sprintf($this->getTemplate($webhook->entity, $webhook->action),
+        $text = sprintf(
+            $this->getTemplate($webhook->entity, $webhook->action),
             $webhook->entity_name,
             $webhook->responsible_user_id,
             Carbon::createFromTimestamp($webhook->created_at)->toDateTimeString()
@@ -137,7 +139,8 @@ class HandleWebhook implements ShouldQueue
 
         $changed_custom_fields_imploded = $this->chainCustomFields($webhook->entity_custom_fields);
 
-        $text = sprintf($this->getTemplate($webhook->entity, $webhook->action),
+        $text = sprintf(
+            $this->getTemplate($webhook->entity, $webhook->action),
             $webhook->entity_name,
             $changed_custom_fields_imploded,
             Carbon::createFromTimestamp($webhook->updated_at)->toDateTimeString()
@@ -165,7 +168,7 @@ class HandleWebhook implements ShouldQueue
         return [
             LeadCreated::class => 'handleLeadCreated',
             LeadUpdated::class => 'handleLeadUpdated',
-            ContactCreated::class => 'notify',
+            ContactCreated::class => 'handleContactCreated',
             ContactUpdated::class => 'handleContactUpdated',
         ];
     }
@@ -197,7 +200,7 @@ class HandleWebhook implements ShouldQueue
             $note->setId($note_id);
         }
 
-        return Amo::noteApi()->notify($note);
+        return Amo::entities()->noteApi()->notify($note);
     }
 
     /**
@@ -220,6 +223,9 @@ class HandleWebhook implements ShouldQueue
      */
     private function chainCustomFields(DataCollection $custom_fields) : string
     {
-        return implode(", ", $custom_fields->toCollection()->map(fn(CustomFieldDto $field) => $field->name.": ".$field->value)->toArray());
+        return implode(
+            ", ",
+            $custom_fields->toCollection()->map(fn(CustomFieldDto $field) => $field->name.": ".$field->value)->toArray()
+        );
     }
 }

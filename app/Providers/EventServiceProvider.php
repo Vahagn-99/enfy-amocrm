@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Base\Client\Events\AmoAccountAuthenticated;
 use App\Base\Client\Listeners\HandleWebhook;
+use App\Base\Client\Listeners\SubscribeToAccountWebhooks;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -14,6 +16,17 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $subscribe = [
         HandleWebhook::class,
+    ];
+
+    /**
+     * The event listener mappings for the application.
+     *
+     * @var array<class-string, array<class-string>>
+     */
+    protected $listen = [
+        AmoAccountAuthenticated::class => [
+            SubscribeToAccountWebhooks::class,
+        ]
     ];
 
     /**

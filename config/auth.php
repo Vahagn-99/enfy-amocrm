@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'client'),
+        'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
@@ -40,15 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'client' => [
-            'driver' => 'client',
-            'provider' => 'clients',
-        ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Client Providers
+    | User Providers
     |--------------------------------------------------------------------------
     |
     | All authentication guards have a user provider, which defines how the
@@ -64,10 +60,6 @@ return [
     */
 
     'providers' => [
-        'clients' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\Client::class),
-        ],
     ],
 
     /*
@@ -116,11 +108,4 @@ return [
         'username' => env('BASIC_AUTH_USERNAME', 'admin'),
         'password' => env('BASIC_AUTH_PASSWORD', 'admin'),
     ],
-
-    'admin' => [
-        'driver' => 'cache',
-        'tag' => 'admin-auth',
-        'username' => env('AUTH_ADMIN_USERNAME'),
-        'password' => env('AUTH_ADMIN_PASSWORD'),
-    ]
 ];

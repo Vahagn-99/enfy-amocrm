@@ -6,7 +6,7 @@ use App\Models\Client;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class WidgetInstalled
+class AmoAccountAuthenticated
 {
     use Dispatchable, SerializesModels;
 
