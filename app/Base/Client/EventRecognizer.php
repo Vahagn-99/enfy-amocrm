@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Base\Client;
 
-class EventReconizer
+class EventRecognizer
 {
     /**
      * Получение события по сущности и действию.
@@ -16,12 +16,6 @@ class EventReconizer
      */
     public static function getEvent(string $entity, string $action): ?string
     {
-        $events = config('amocrm.webhooks.support');
-
-        if (isset($events[$entity][$action])) {
-            return $events[$entity][$action];
-        }
-
-        return null;
+        return config("amocrm.webhooks.event.{$entity}.{$action}");
     }
 }

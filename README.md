@@ -59,6 +59,12 @@ https://legally-fleet-hen.ngrok-free.app
 
 ## 🔐 Авторизация в AmoCRM и получение Access Token
 
+    - Нужно копировать ключи виджета из AmoCRM и вставить в файл `.env`:
+    ```
+    AMOCRM_CLIENT_ID=ваш_client_id
+    AMOCRM_CLIENT_SECRET=ваш_client_secret
+    ```
+
 1. Войдите в аккаунт AmoCRM в браузере.
 2. После входа вставьте в адресную строку **в этом же браузере** ссылку:
 
@@ -96,8 +102,8 @@ http://localhost:8010
 - **Laravel Telescope** — отладка и мониторинг приложения. (http://localhost/telescope)
 - **AmoCRM API** — интеграция с AmoCRM.
 
-## 📄 Авторизация в http://localhost/horizon, http://localhost/log-viewer, http://localhost/telescope для простоты сделано через basic auth.
-- **Логин:** admin```
+## 📄 Авторизация в сервисах http://localhost/horizon, http://localhost/log-viewer, http://localhost/telescope для простоты сделано через basic auth.
+- **Логин:** admin
 - **Пароль:** admin
 
 можно изменить в файле `.env`

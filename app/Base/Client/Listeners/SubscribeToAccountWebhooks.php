@@ -29,10 +29,10 @@ class SubscribeToAccountWebhooks implements ShouldQueue
 
         $amo_webhook = new  WebhookModel();
         $amo_webhook->setCreatedBy($client->id);
-        $amo_webhook->setDestination(route('amocrm.webhook', [
+        $amo_webhook->setDestination(config("amocrm.widget.webhook_url", route('amocrm.webhook', [
             'client_api_key' => "some_api_key",
             // ставим сюда api_key для клиента, и обноволяем его каждый день по крону. также ставим сообитие на обновление вебхука в AmoCRM.
-        ]));
+        ])));
         $amo_webhook->setSettings([
             'add_lead',
             'update_lead',
@@ -40,14 +40,12 @@ class SubscribeToAccountWebhooks implements ShouldQueue
             'update_contact',
         ]);
 
-        $exists_webhook_id = $client->embedded->used_webhook_id;
-
-        if (isset($exists_webhook_id)) {
-            $amo_webhook->setId($exists_webhook_id);
-        }
-
         try {
-            Amo::entities()->webhookApi()->sync($amo_webhook);
+            $result = Amo::entities()->webhookApi()->sync($amo_webhook, $client->embedded->used_webhook_id);
+
+            $client->embedded->used_webhook_id = $result->getId();
+
+            $client->save();
         } catch (AmoCRMMissedTokenException|AmoCRMoAuthApiException|AmoCRMApiException $e) {
             alt_log()->file('error_amocrm')->error(
                 "Не удалось подписаться на вебхук для клиента {$event->client->domain}".json_encode([

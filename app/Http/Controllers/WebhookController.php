@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Base\Client\{
-    EventReconizer,
+    EventRecognizer,
     HttpIncomingWebhook,
 };
 use App\Services\AmoCRM\Core\Facades\Amo;
@@ -35,7 +35,7 @@ class WebhookController extends Controller
      */
     public function __invoke(Request $request) : JsonResponse
     {
-        try {
+//        try {
             $data = $request->all();
 
             $domain = $data['account']['subdomain'].'.amocrm.ru';
@@ -68,23 +68,25 @@ class WebhookController extends Controller
 
             $webhook = HttpIncomingWebhook::fromRequestData($data);
 
-            $event = EventReconizer::getEvent($webhook->entity, $webhook->action);
+            $event = EventRecognizer::getEvent($webhook->entity, $webhook->action);
 
             if (empty($event)) {
-                throw new Exception("Данный Вебхук не поддерживается: {$webhook->entity} {$webhook->action}. Данные: ".json_encode([
+                throw new Exception(
+                    "Данный Вебхук не поддерживается: {$webhook->entity} {$webhook->action}. Данные: ".json_encode([
                         "client_domain" => $domain,
                         "data" => $data,
-                    ]));
+                    ])
+                );
             }
 
-            dispatch(new $event($client, $webhook));
-        } catch (AmoCRMMissedTokenException $e) {
-            alt_log()->file("error_amocrm_webhook")->error($e->getMessage());
-        } catch (Throwable $e) {
-            alt_log()->file("critical_amocrm_webhook")->critical($e);
-        } finally {
+            $event::dispatch($client, $webhook);
+//        } catch (AmoCRMMissedTokenException $e) {
+//            alt_log()->file("error_amocrm_webhook")->error($e->getMessage());
+//        } catch (Throwable $e) {
+//            alt_log()->file("critical_amocrm_webhook")->critical($e);
+//        } finally {
             return response()->json();
-        }
+//        }
     }
 }
 

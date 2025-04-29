@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Client as ClientModel;
-use App\Http\Requests\CallbackRequest;
 use App\Base\Client\Events\AmoAccountAuthenticated;
+use App\Http\Requests\CallbackRequest;
+use App\Models\Client as ClientModel;
 use App\Services\AmoCRM\Core\Facades\Amo;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Exception;
 use Throwable;
 
 class OAuthController extends Controller
@@ -31,7 +31,7 @@ class OAuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function callback(CallbackRequest $request) :JsonResponse
+    public function callback(CallbackRequest $request) : JsonResponse
     {
         $domain = $request->validated("referer");
         $code = $request->validated("code");
@@ -51,9 +51,7 @@ class OAuthController extends Controller
         try {
             $access_token = $authenticator->exchangeCodeWithAccessToken($code);
 
-            Amo::oauth()->saveOAuthToken($access_token, $client->getDomain());
-
-            Amo::setAccount($client);
+            $authenticator->oauth()->saveOAuthToken($access_token, $client->getDomain());
 
             $client->save();
 
@@ -63,13 +61,14 @@ class OAuthController extends Controller
         } catch (Exception $e) {
             alt_log()->file("error_client_oauth")->error("{$client->getDomain()} Ошибка авторизации", [
                 'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json(['status' => 'error']);
-        }
-          catch (Throwable $e) {
+        } catch (Throwable $e) {
             alt_log()->file("error_client_oauth")->error("{$client->getDomain()} Ошибка авторизации", [
                 'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json(['status' => 'error']);

@@ -12,7 +12,8 @@ class WebhookApi
      *
      * @param \AmoCRM\Client\AmoCRMApiClient $apiClient
      */
-    public function __construct(private readonly AmoCRMApiClient $apiClient) {
+    public function __construct(private readonly AmoCRMApiClient $apiClient)
+    {
         //
     }
 
@@ -20,7 +21,7 @@ class WebhookApi
      * Создание или обновление вебхука.
      *
      * @param \AmoCRM\Models\WebhookModel $webhook
-     * @param int|null $exist_webhook_id
+     * @param string|null $exist_webhook_id
      *
      * @return \AmoCRM\Models\WebhookModel
      * @throws \AmoCRM\Exceptions\AmoCRMApiException
@@ -28,14 +29,14 @@ class WebhookApi
      * @throws \AmoCRM\Exceptions\AmoCRMoAuthApiException
      * @throws \AmoCRM\Exceptions\NotAvailableForActionException
      */
-    public function sync(WebhookModel $webhook, ?int $exist_webhook_id = null) : WebhookModel
+    public function sync(WebhookModel $webhook, ?string $exist_webhook_id = null) : WebhookModel
     {
         $api = $this->apiClient->webhooks();
 
         if (isset($exist_webhook_id)) {
             $webhook->setId($exist_webhook_id);
 
-           return $api->updateOne($webhook);
+            $api->unsubscribe($webhook);
         }
 
         return $api->subscribe($webhook);

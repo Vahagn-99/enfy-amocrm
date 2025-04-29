@@ -22,6 +22,7 @@ return [
         // Но лучше его а оставить null
         // ностаяий аддрес для редиректа берется по роуту route("amocrm.auth.callback") в сервис провайдере AmoCRMServiceProvider
         "redirect_url" => env("AMOCRM_REDIRECT_URL"), // route("amocrm.auth.callback")
+        "webhook_url" => env("AMOCRM_WEBHOOK_URL"), // route("amocrm.webhook")
     ],
 
     /*
@@ -47,7 +48,7 @@ return [
                     "update" => "Название сделки: %s \n изменные поля: %s \n Дата обновления: %s",
                 ],
                 "contacts" => [
-                    "add" => "Имя контакта: %s \n Дата создания: %s",
+                    "add" => "Имя контакта: %s \n Ответственный: %s \n  Дата создания: %s",
                     "update" => "Имя контакта: %s \n изменные поля: %s \n Дата обновления: %s",
                 ],
             ],

@@ -3,20 +3,22 @@
 namespace App\Base\Client\Listeners;
 
 
-use AmoCRM\Exceptions\AmoCRMApiException;
-use AmoCRM\Models\NoteModel;
-use AmoCRM\Models\NoteType\CommonNote;
 use App\Base\Client\CustomFieldDto;
 use App\Base\Client\Events\{
     ContactCreated,
     ContactUpdated,
     LeadCreated,
-    LeadUpdated,};
+    LeadUpdated,
+};
+use AmoCRM\Models\NoteType\CommonNote;
+use AmoCRM\Models\NoteModel;
 use App\Services\AmoCRM\Core\Facades\Amo;
+use AmoCRM\Helpers\EntityTypesInterface;
 use Carbon\Carbon;
+use Spatie\LaravelData\DataCollection;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Spatie\LaravelData\DataCollection;
+use AmoCRM\Exceptions\AmoCRMApiException;
 
 class HandleWebhook implements ShouldQueue
 {
@@ -44,7 +46,7 @@ class HandleWebhook implements ShouldQueue
         );
 
         try {
-            $this->send($webhook->entity_id, $text);
+            $this->send($webhook->entity_id,EntityTypesInterface::LEADS, $text);
         } catch (AmoCRMApiException $e) {
             alt_log()->file('error_handle_webhook')->error("Не удалось добавить заметку на созданном сделке.", [
                 "domain" => $client->domain,
@@ -58,10 +60,10 @@ class HandleWebhook implements ShouldQueue
     /**
      * Обработка хука при обновлении лида.
      *
-     * @param \App\Base\Client\Events\LeadCreated $event
+     * @param \App\Base\Client\Events\LeadUpdated $event
      * @return void
      */
-    public function handleLeadUpdated(LeadCreated $event) : void
+    public function handleLeadUpdated(LeadUpdated $event) : void
     {
         $client = $event->client;
 
@@ -79,7 +81,7 @@ class HandleWebhook implements ShouldQueue
         );
 
         try {
-            $this->send($webhook->entity_id, $text);
+            $this->send($webhook->entity_id,EntityTypesInterface::LEADS, $text);
         } catch (AmoCRMApiException $e) {
             alt_log()->file('error_handle_webhook')->error("Не удалось добавить заметку на обновленном сделке.", [
                 "domain" => $client->domain,
@@ -112,7 +114,7 @@ class HandleWebhook implements ShouldQueue
         );
 
         try {
-            $this->send($webhook->entity_id, $text);
+            $this->send($webhook->entity_id,EntityTypesInterface::CONTACTS, $text);
         } catch (AmoCRMApiException $e) {
             alt_log()->file('error_handle_webhook')->error("Не удалось добавить заметку на созданном контакте.", [
                 "domain" => $client->domain,
@@ -147,7 +149,7 @@ class HandleWebhook implements ShouldQueue
         );
 
         try {
-            $this->send($webhook->entity_id, $text);
+            $this->send($webhook->entity_id,EntityTypesInterface::CONTACTS, $text);
         } catch (AmoCRMApiException $e) {
             alt_log()->file('error_handle_webhook')->error("Не удалось добавить заметку на обновленном контакте.", [
                 "domain" => $client->domain,
@@ -181,8 +183,8 @@ class HandleWebhook implements ShouldQueue
      * Отправка заметк  в AmoCRM.
      *
      * @param int $entity_id
+     * @param string $entity
      * @param string $text
-     * @param int|null $note_id
      * @return \AmoCRM\Models\NoteModel
      *
      * @throws \AmoCRM\Exceptions\AmoCRMApiException
@@ -190,17 +192,13 @@ class HandleWebhook implements ShouldQueue
      * @throws \AmoCRM\Exceptions\AmoCRMoAuthApiException
      * @throws \AmoCRM\Exceptions\InvalidArgumentException
      */
-    private function send(int $entity_id, string $text, int $note_id = null) : NoteModel
+    private function send(int $entity_id, string $entity, string $text) : NoteModel
     {
         $note = new CommonNote();
 
         $note->setEntityId($entity_id)->setText($text);
 
-        if (! empty($note_id)) {
-            $note->setId($note_id);
-        }
-
-        return Amo::entities()->noteApi()->notify($note);
+        return Amo::entities()->noteApi()->notify($note, $entity);
     }
 
     /**

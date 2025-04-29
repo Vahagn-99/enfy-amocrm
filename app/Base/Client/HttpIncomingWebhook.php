@@ -46,9 +46,10 @@ class HttpIncomingWebhook extends Data
     {
         foreach (config("amocrm.webhooks.support") as $entity) {
             if (Arr::has($data, $entity)) {
-                $data = current(current($data[$entity]));
 
                 $action = key($data[$entity]);
+
+                $data = current(current($data[$entity]));
 
                 $custom_fields = isset($data['custom_fields']) ? CustomFieldHandler::mapFromArrayOfCustomFields($data['custom_fields']): [];
 
